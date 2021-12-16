@@ -1,9 +1,8 @@
-DROP TABLE station CASCADE;
-DROP TABLE address CASCADE;
-DROP TABLE ports_and_plugs CASCADE;
-DROP TABLE charging_event CASCADE;
-
 -- TO-DO: REFACTOR DATABASE STRUCTURE TO HAVE BETTER PERFORMANCE --
+DROP TABLE IF EXISTS station CASCADE;
+DROP TABLE IF EXISTS address CASCADE;
+DROP TABLE IF EXISTS ports_and_plugs CASCADE;
+DROP TABLE IF EXISTS charging_event CASCADE;
 
 CREATE TABLE station
 (
@@ -34,16 +33,16 @@ CREATE TABLE ports_and_plugs
 CREATE TABLE charging_event
 (
     plug_in_event_id bigint,
-    start_date       timestamp,
-    end_date         timestamp,
-    total_duration   varchar(50),
-    charging_time    varchar(50),
+    start_date       datetime,
+    end_date         datetime,
+    total_duration   time default 0,
+    charging_time    time default 0,
     energy           float,
     ghg_savings      float,
     gasoline_savings float,
     ended_by         varchar(50) default 'N/A',
     user_id          varchar(50) default 'N/A',
-    transaction_date timestamp,
+    transaction_date datetime,
     fee              decimal     default 0,
     currency         VARCHAR(4)  default 'USD',
     station_name     varchar(100) references station (name),
