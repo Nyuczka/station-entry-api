@@ -19,11 +19,12 @@ public class ChargingEventRepositoryImpl implements APIChargingEventRepository {
                     "latest_records.station_name = charging_event.station_name WHERE " +
                     "charging_event.station_name =:name ORDER BY charging_event.end_date desc LIMIT :limit";
 
-    private static final String MAX_ENERGY_PER_DAY_QUERY= "SELECT user_id AS userID, DATE(end_date) AS date FROM " +
-            "((SELECT DATE(end_date) AS date, MAX(energy) as energy FROM charging_event WHERE DATE(end_date) " +
-            "BETWEEN :startDate AND :endDate GROUP BY DATE(end_date)) AS energy_per_day) INNER JOIN " +
-            "charging_event ON DATE(charging_event.end_date) = energy_per_day.date AND " +
-            "charging_event.energy = energy_per_day.energy";
+    private static final String MAX_ENERGY_PER_DAY_QUERY= "SELECT charging_event.user_id AS userID, " +
+            "DATE(charging_event.end_date) AS day FROM " +
+            "(SELECT DATE(end_date) AS day, MAX(energy) AS energy FROM charging_event WHERE DATE(end_date) " +
+            "BETWEEN :startDate AND :endDate GROUP BY day) AS energies  JOIN " +
+            "charging_event ON DATE(charging_event.end_date)=energies.day AND charging_event.energy " +
+            "= energies.energy";
 
 
     @PersistenceContext
@@ -40,7 +41,7 @@ public class ChargingEventRepositoryImpl implements APIChargingEventRepository {
     }
 
     @Override
-    public List<Object[]> findUsersWithMaxEnergyForDayBetween(LocalDate startDate, LocalDate endDate) {
+    public List<String[]> findUsersWithMaxEnergyForDayBetween(LocalDate startDate, LocalDate endDate) {
         Query nativeQuery = entityManager.createNativeQuery(
                 MAX_ENERGY_PER_DAY_QUERY);
         nativeQuery.setParameter("startDate", startDate);
