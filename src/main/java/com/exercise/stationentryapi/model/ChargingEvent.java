@@ -20,7 +20,8 @@ import java.time.LocalTime;
 public class ChargingEvent implements Serializable {
 
     @Id
-    private int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     @Column(name = "plug_in_event_id")
     private BigInteger pluginEventID;
@@ -37,13 +38,14 @@ public class ChargingEvent implements Serializable {
     @Column(name = "charging_time")
     private LocalTime chargingTime;
 
-    private float energy;
+    @Column(name = "energy")
+    private double energy;
 
     @Column(name = "ghg_savings")
-    private float ghgSavings;
+    private double ghgSavings;
 
     @Column(name = "gasoline_savings")
-    private float gasolineSavings;
+    private double gasolineSavings;
 
     @Column(name = "ended_by")
     private String endedBy;
@@ -51,13 +53,13 @@ public class ChargingEvent implements Serializable {
     @Column(name = "user_id")
     private String userID;
 
-    @Column(name = "transaction_time")
-    private LocalTime transactionTime;
+    @Column(name = "transaction_date")
+    private LocalDateTime transactionDate;
 
-    @Column
-    private float fee;
+    @Column(name="fee")
+    private double fee;
 
-    @Column
+    @Column(name="currency")
     private String currency;
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})

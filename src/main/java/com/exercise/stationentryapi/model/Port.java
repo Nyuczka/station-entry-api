@@ -27,7 +27,4 @@ public class Port {
     @Column(name = "plug_type")
     private String plugType;
 
-    @OneToMany(mappedBy = "port", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
-    private List<ChargingEvent> chargingEvents;
-
 }
