@@ -32,10 +32,4 @@ public class Station {
 
     @Column(name = "org_name", columnDefinition = "varchar(100) default 'City of Palo Alto'")
     private String organizationName;
-
-    @OneToOne(mappedBy = "station")
-    private Address address;
-
-    @OneToMany(mappedBy = "station", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
-    private List<ChargingEvent> chargingEvents;
 }
