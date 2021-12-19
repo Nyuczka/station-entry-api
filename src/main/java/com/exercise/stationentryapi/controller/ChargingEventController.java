@@ -1,58 +1,69 @@
 package com.exercise.stationentryapi.controller;
 
-import com.exercise.stationentryapi.model.ChargingEvent;
-import com.exercise.stationentryapi.model.UsersAverageEnergyProjection;
 import com.exercise.stationentryapi.repository.events.ChargingEventRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.exercise.stationentryapi.service.ChargingEventsService;
+import com.exercise.stationentryapi.wrapper.ResponseWrapper;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.Min;
 import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/charging-events")
 public class ChargingEventController {
 
-    @Autowired
-    private ChargingEventRepository chargingEventRepository;
+    final
+    ChargingEventsService chargingEventsService;
 
+    final
+    ChargingEventRepository chargingEventRepository;
 
-    @GetMapping("/all")
-    public ResponseEntity<List<ChargingEvent>> getAllEvents() {
-        return ResponseEntity.ok(chargingEventRepository.findAll());
+    public ChargingEventController(ChargingEventsService chargingEventsService, ChargingEventRepository chargingEventRepository) {
+        this.chargingEventsService = chargingEventsService;
+        this.chargingEventRepository = chargingEventRepository;
+    }
+
+    @GetMapping(value = "/all", produces = "application/json;charset=UTF-8")
+    public ResponseEntity<?> getAllEvents() {
+        ResponseWrapper wrapper = new ResponseWrapper(chargingEventsService.getChargingEvents());
+        return new ResponseEntity<>(wrapper, HttpStatus.OK);
     }
 
     @GetMapping
-    public ResponseEntity<List<ChargingEvent>> getChargingEventsByStationName(@RequestParam final String stationName,
-                                                                              @RequestParam(name = "limit", defaultValue = "0") final int limit) {
-        return ResponseEntity.ok(chargingEventRepository.findTopNEventsForStation(stationName, limit));
+    public ResponseEntity<?>
+    getChargingEventsByStationName(@RequestParam final String stationName,
+                                   @RequestParam(name    = "limit", defaultValue = "0") final int limit) {
+        ResponseWrapper wrapper = new ResponseWrapper(chargingEventsService.getTopNEventsForStation(stationName, limit));
+        return new ResponseEntity<>(wrapper, HttpStatus.OK);
     }
 
     @GetMapping("/{userID}")
-    public ResponseEntity<List<ChargingEvent>> getChargingEventsForUserIDAndEnergyConsumptionRange
+    public ResponseEntity<?> getChargingEventsForUserIDAndEnergyConsumptionRange
             (@PathVariable final String userID, @RequestParam("minEnergy") @Min(0) final double minEnergy,
              @RequestParam("maxEnergy") @Min(0) final double maxEnergy) {
-        return ResponseEntity.ok(chargingEventRepository.findChargingEventsByUserIDAndEnergyBetween(userID, minEnergy, maxEnergy));
+        ResponseWrapper wrapper = new ResponseWrapper(chargingEventsService.getChargingEventsForUserIDAndEnergyConsumptionRange(userID, minEnergy, maxEnergy));
+        return new ResponseEntity<>(wrapper, HttpStatus.OK);
     }
 
     @GetMapping("/average-energy-per-user")
-    public ResponseEntity<List<UsersAverageEnergyProjection>> getAverageEnergyConsumption() {
-        List<UsersAverageEnergyProjection> averageEnergyConsumption = chargingEventRepository.findAverageEnergyConsumptionPerUser();
-        return ResponseEntity.ok(averageEnergyConsumption);
+    public ResponseEntity<?> getAverageEnergyConsumption() {
+        ResponseWrapper wrapper = new ResponseWrapper(chargingEventsService.getAverageEnergyConsumptionPerUser());
+        return new ResponseEntity<>(wrapper, HttpStatus.OK);
     }
 
     @GetMapping("/average-energy")
-    public ResponseEntity<Double> getAverageEnergy() {
-        return ResponseEntity.ok(chargingEventRepository.findAverageEnergy());
+    public ResponseEntity<?> getAverageEnergy() {
+        return ResponseEntity.ok(chargingEventsService.getAverageEnergy());
     }
 
     @GetMapping("/max-energy")
-    public ResponseEntity<List<Object[]>>
+    public ResponseEntity<?>
     getUsersWithMaxEnergyForDaysBetween(@RequestParam @DateTimeFormat(pattern = "yyyy-M-d") final LocalDate startDate,
                                         @RequestParam @DateTimeFormat(pattern = "yyyy-M-d") final LocalDate endDate) {
-        return ResponseEntity.ok(chargingEventRepository.findUsersWithMaxEnergyForDayBetween(startDate, endDate));
+        ResponseWrapper wrapper = new ResponseWrapper(chargingEventsService.getUsersWithMaxEnergyForDateBetween(startDate, endDate));
+        return new ResponseEntity<>(wrapper, HttpStatus.OK);
     }
 }

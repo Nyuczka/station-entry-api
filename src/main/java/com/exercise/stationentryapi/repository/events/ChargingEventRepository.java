@@ -1,7 +1,6 @@
 package com.exercise.stationentryapi.repository.events;
 
 import com.exercise.stationentryapi.model.ChargingEvent;
-import com.exercise.stationentryapi.model.UsersAverageEnergyProjection;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -21,7 +20,7 @@ public interface ChargingEventRepository extends CrudRepository<ChargingEvent, I
     List<ChargingEvent> findChargingEventsByUserIDAndEnergyBetween(String userID, double minEnergy, double maxEnergy);
 
     @Query(value = AVERAGE_CONSUMED_ENERGY_PER_USER_QUERY)
-    List<UsersAverageEnergyProjection> findAverageEnergyConsumptionPerUser();
+    List<String[]> findAverageEnergyConsumptionPerUser();
 
     @Query(value = AVERAGE_ENERGY_QUERY)
     Double findAverageEnergy();

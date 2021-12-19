@@ -11,6 +11,6 @@ public interface APIChargingEventRepository {
 
     List<ChargingEvent> findTopNEventsForStation(String stationName, int limit);
 
-    List<Object[]> findUsersWithMaxEnergyForDayBetween(LocalDate startDate, LocalDate endDate);
+    List<String[]> findUsersWithMaxEnergyForDayBetween(LocalDate startDate, LocalDate endDate);
 
 }
