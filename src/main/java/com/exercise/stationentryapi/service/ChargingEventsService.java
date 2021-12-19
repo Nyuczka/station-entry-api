@@ -9,10 +9,7 @@ import com.exercise.stationentryapi.repository.events.ChargingEventRepository;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class ChargingEventsService {
@@ -60,6 +57,11 @@ public class ChargingEventsService {
             usersWithMaxEnergyForDayBetween.forEach(value -> usersToDates.add(new UserToDate(value[0], value[1])));
         }
         return usersToDates;
+    }
+
+    public Optional<ChargingEvent> addChargingEvent(ChargingEventDTO chargingEventDTO){
+        ChargingEvent chargingEvent = chargingEventMapper.toEntity(chargingEventDTO);
+        return Optional.of(repository.save(chargingEvent));
     }
 
     private List<ChargingEventDTO> convertEntityToDTO(List<ChargingEvent> events){

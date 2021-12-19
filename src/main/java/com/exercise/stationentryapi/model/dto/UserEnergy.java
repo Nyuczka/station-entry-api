@@ -15,6 +15,6 @@ public class UserEnergy {
     @JsonProperty("User ID")
     private String userID;
 
-    @JsonProperty("Date")
-    private String date;
+    @JsonProperty("Energy")
+    private String energy;
 }
