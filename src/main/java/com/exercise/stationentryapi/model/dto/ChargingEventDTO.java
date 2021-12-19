@@ -1,5 +1,6 @@
 package com.exercise.stationentryapi.model.dto;
 
+import com.exercise.stationentryapi.model.Station;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
@@ -50,5 +51,8 @@ public class ChargingEventDTO {
 
     @JsonProperty(value = "Currency")
     private String currency;
+
+    @JsonProperty(value = "station")
+    private Station station;
 
 }

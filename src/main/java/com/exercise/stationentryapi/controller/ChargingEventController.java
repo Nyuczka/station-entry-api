@@ -1,5 +1,7 @@
 package com.exercise.stationentryapi.controller;
 
+import com.exercise.stationentryapi.model.ChargingEvent;
+import com.exercise.stationentryapi.model.dto.ChargingEventDTO;
 import com.exercise.stationentryapi.repository.events.ChargingEventRepository;
 import com.exercise.stationentryapi.service.ChargingEventsService;
 import com.exercise.stationentryapi.wrapper.ResponseWrapper;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.Min;
 import java.time.LocalDate;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/charging-events")
@@ -32,10 +35,19 @@ public class ChargingEventController {
         return new ResponseEntity<>(wrapper, HttpStatus.OK);
     }
 
+    @PostMapping(value="/add-entry", consumes = "application/json;charset=UTF-8")
+    public ResponseEntity<?> addEntry(@RequestBody ChargingEventDTO chargingEventDTO){
+        Optional<ChargingEvent> chargingEvent = chargingEventsService.addChargingEvent(chargingEventDTO);
+        if(chargingEvent.isPresent()){
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+    }
+
     @GetMapping
     public ResponseEntity<?>
     getChargingEventsByStationName(@RequestParam final String stationName,
-                                   @RequestParam(name    = "limit", defaultValue = "0") final int limit) {
+                                   @RequestParam(name= "limit", defaultValue = "0") final int limit) {
         ResponseWrapper wrapper = new ResponseWrapper(chargingEventsService.getTopNEventsForStation(stationName, limit));
         return new ResponseEntity<>(wrapper, HttpStatus.OK);
     }
@@ -56,7 +68,7 @@ public class ChargingEventController {
 
     @GetMapping("/average-energy")
     public ResponseEntity<?> getAverageEnergy() {
-        return ResponseEntity.ok(chargingEventsService.getAverageEnergy());
+        return new ResponseEntity<>(chargingEventsService.getAverageEnergy(), HttpStatus.OK);
     }
 
     @GetMapping("/max-energy")
