@@ -1,4 +1,5 @@
-FROM openjdk:11
-ADD target/station-entry-api.jar station-entry-api.jar
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "station-entry-api.jar"]
+FROM maven:3.8.4-openjdk-11
+WORKDIR /station-entry-api
+COPY . .
+RUN mvn clean install -DskipTests
+CMD mvn spring-boot:run
