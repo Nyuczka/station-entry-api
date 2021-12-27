@@ -2,16 +2,17 @@ package com.exercise.stationentryapi.filter;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.exercise.stationentryapi.model.User;
+import com.exercise.stationentryapi.model.dto.User;
+import com.exercise.stationentryapi.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Value;
+import net.minidev.json.JSONObject;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
@@ -22,23 +23,24 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Enumeration;
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-    @Value("stationAPI.security.jwt.secret")
-    private String authenticationSecret;
 
-    @Value("stationAPI.security.expiration.interval")
-    private long interval;
+    private final String AUTH_SECRET = "TjWnZr4u7x!z%C*F-JaNdRgUkXp2s5v8";
+
+    private final Long INTERVAL = 1800000L;
 
     private final AuthenticationManager authenticationManager;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
+    private UserService userService;
+
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserService userService) {
         this.authenticationManager = authenticationManager;
+        this.userService = userService;
     }
 
     @Override
@@ -48,7 +50,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             User user = new ObjectMapper().readValue(request.getInputStream(), User.class);
 
             return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername()
-                    , user.getPassword()));
+                    , user.getPassword(), getAuthoritiesForUser(user)));
         } catch (final BadCredentialsException exception) {
             throw exception;
         } catch (final Exception exception) {
@@ -62,13 +64,25 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             FilterChain chain,
                                             Authentication authResult) throws IOException, ServletException {
         UserDetails user = (UserDetails) authResult.getPrincipal();
-        LocalDateTime localDateTime = LocalDateTime.now().plus(interval, ChronoUnit.MILLIS);
-        String generatedToken = JWT.create().
-                withSubject(user.getUsername()).
-                withExpiresAt(Date.from(
+        LocalDateTime localDateTime = LocalDateTime.now().plus(INTERVAL, ChronoUnit.MILLIS);
+        String generatedToken = JWT.create()
+                .withSubject(user.getUsername())
+                .withExpiresAt(Date.from(
                         localDateTime.atZone(ZoneId.systemDefault()).toInstant()))
-                .sign(Algorithm.HMAC256(authenticationSecret));
-        response.addHeader("Authorization", "Bearer " + generatedToken);
-        super.successfulAuthentication(request, response, chain, authResult);
+                .withIssuer(request.getRequestURL().toString())
+                .withClaim("roles", user.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+                        .collect(Collectors.toList()))
+                .sign(Algorithm.HMAC256(AUTH_SECRET));
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("token", "Bearer " + generatedToken);
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setHeader("Content-Type", "application/json;charset=UTF-8");
+        response.getWriter().write(jsonObject.toJSONString());
+        response.getWriter().flush();
+    }
+
+    private List<GrantedAuthority> getAuthoritiesForUser(User user){
+        return userService.getAuthoritiesForUser(user);
     }
 }

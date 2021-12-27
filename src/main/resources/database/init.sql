@@ -3,8 +3,6 @@ DROP TABLE IF EXISTS station;
 DROP TABLE IF EXISTS address;
 DROP TABLE IF EXISTS charging_event;
 DROP TABLE IF EXISTS ports_and_plugs;
-DROP TABLE IF EXISTS user_role;
-DROP TABLE IF EXISTS users;
 
 #---------------------  TABLES  ---------------------#
 CREATE TABLE station
@@ -64,20 +62,6 @@ CREATE TABLE charging_event
     currency         VARCHAR(4)  default 'USD',
     station_name     varchar(100) references station (name),
     port             integer references ports_and_plugs (port_number)
-);
-
-
-CREATE TABLE user_role
-(
-    name varchar(50) primary key
-);
-
-CREATE TABLE users
-(
-    id        serial primary key auto_increment,
-    username  varchar(100) not null unique,
-    password  varchar(100) not null,
-    role_name varchar(50) references user_role(name)
 );
 
 #---------------------  INDEXES  ---------------------#

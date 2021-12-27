@@ -2,7 +2,6 @@ package com.exercise.stationentryapi.controller;
 
 import com.exercise.stationentryapi.model.ChargingEvent;
 import com.exercise.stationentryapi.model.dto.ChargingEventDTO;
-import com.exercise.stationentryapi.repository.events.ChargingEventRepository;
 import com.exercise.stationentryapi.service.ChargingEventsService;
 import com.exercise.stationentryapi.wrapper.ResponseWrapper;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -15,21 +14,16 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/charging-events")
+@RequestMapping(value = "/api/charging-events", produces = "application/json")
 public class ChargingEventController {
 
-    final
-    ChargingEventsService chargingEventsService;
+    private final ChargingEventsService chargingEventsService;
 
-    final
-    ChargingEventRepository chargingEventRepository;
-
-    public ChargingEventController(ChargingEventsService chargingEventsService, ChargingEventRepository chargingEventRepository) {
+    public ChargingEventController(ChargingEventsService chargingEventsService) {
         this.chargingEventsService = chargingEventsService;
-        this.chargingEventRepository = chargingEventRepository;
     }
 
-    @GetMapping(value = "/all", produces = "application/json;charset=UTF-8")
+    @GetMapping(value = "/all")
     public ResponseEntity<?> getAllEvents() {
         ResponseWrapper wrapper = new ResponseWrapper(chargingEventsService.getChargingEvents());
         return new ResponseEntity<>(wrapper, HttpStatus.OK);

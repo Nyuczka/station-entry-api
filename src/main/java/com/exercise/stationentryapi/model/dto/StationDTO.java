@@ -1,8 +1,16 @@
 package com.exercise.stationentryapi.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 
-public class StationDTO {
+import java.io.Serializable;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+public class StationDTO implements Serializable {
     @JsonProperty("Evse ID")
     private String evseID;
 

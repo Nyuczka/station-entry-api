@@ -1,32 +1,42 @@
 package com.exercise.stationentryapi.model.dto;
 
-import com.exercise.stationentryapi.model.Station;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 
+import java.io.Serializable;
 import java.math.BigInteger;
+import java.time.LocalTime;
+import java.util.Date;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChargingEventDTO {
+@Data
+public class ChargingEventDTO implements Serializable {
+
+    @JsonIgnore
+    private Integer id;
 
     @JsonProperty(value = "Plug in event ID")
     private BigInteger pluginEventID;
 
     @JsonProperty(value = "Start Date")
-    private String startDate;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm")
+    private Date startDate;
 
     @JsonProperty(value = "End Date")
-    private String endDate;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm")
+    private Date endDate;
 
     @JsonProperty(value = "Total Duration")
-    private String totalDuration;
+    private LocalTime totalDuration;
 
     @JsonProperty(value = "Charging Time")
-    private String chargingTime;
+    private LocalTime chargingTime;
 
     @JsonProperty(value = "Energy")
     private double energy;
@@ -44,7 +54,8 @@ public class ChargingEventDTO {
     private String userID;
 
     @JsonProperty(value = "Transaction Date")
-    private String transactionDate;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm")
+    private Date transactionDate;
 
     @JsonProperty(value = "Fee")
     private double fee;
@@ -53,6 +64,6 @@ public class ChargingEventDTO {
     private String currency;
 
     @JsonProperty(value = "station")
-    private Station station;
+    private StationDTO station;
 
 }

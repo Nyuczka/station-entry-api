@@ -4,12 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -27,10 +28,12 @@ public class ChargingEvent implements Serializable {
     private BigInteger pluginEventID;
 
     @Column(name = "start_date")
-    private LocalDateTime startDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:SS")
+    private Date startDate;
 
     @Column(name = "end_date")
-    private LocalDateTime endDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:SS")
+    private Date endDate;
 
     @Column(name = "total_duration")
     private LocalTime totalDuration;
@@ -54,7 +57,7 @@ public class ChargingEvent implements Serializable {
     private String userID;
 
     @Column(name = "transaction_date")
-    private LocalDateTime transactionDate;
+    private Date transactionDate;
 
     @Column(name="fee")
     private double fee;
