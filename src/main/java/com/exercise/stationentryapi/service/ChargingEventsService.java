@@ -1,38 +1,43 @@
 package com.exercise.stationentryapi.service;
 
-import com.exercise.stationentryapi.mapper.ChargingEventMapper;
 import com.exercise.stationentryapi.model.ChargingEvent;
 import com.exercise.stationentryapi.model.dto.ChargingEventDTO;
+import com.exercise.stationentryapi.model.dto.StationDTO;
 import com.exercise.stationentryapi.model.dto.UserEnergy;
 import com.exercise.stationentryapi.model.dto.UserToDate;
 import com.exercise.stationentryapi.repository.events.ChargingEventRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class ChargingEventsService {
 
     private ChargingEventRepository repository;
 
-    private ChargingEventMapper chargingEventMapper;
 
-    public ChargingEventsService(ChargingEventRepository repository, ChargingEventMapper chargingEventMapper) {
+    private ModelMapper modelMapper;
+
+    public ChargingEventsService(ChargingEventRepository repository) {
         this.repository = repository;
-        this.chargingEventMapper = chargingEventMapper;
+        this.modelMapper = new ModelMapper();
     }
 
     public List<ChargingEventDTO> getChargingEvents() {
-        return convertEntityToDTO(repository.findAll());
+        return repository.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public List<ChargingEventDTO> getTopNEventsForStation(String stationName, int limit){
-        return convertEntityToDTO(repository.findTopNEventsForStation(stationName, limit));
+        return repository.findTopNEventsForStation(stationName, limit).stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public List<ChargingEventDTO> getChargingEventsForUserIDAndEnergyConsumptionRange(String userID, double minEnergy, double maxEnergy){
-        return convertEntityToDTO(repository.findChargingEventsByUserIDAndEnergyBetween(userID, minEnergy, maxEnergy));
+        return repository.findChargingEventsByUserIDAndEnergyBetween(userID, minEnergy, maxEnergy).stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public List<UserEnergy> getAverageEnergyConsumptionPerUser(){
@@ -60,16 +65,26 @@ public class ChargingEventsService {
     }
 
     public Optional<ChargingEvent> addChargingEvent(ChargingEventDTO chargingEventDTO){
-        ChargingEvent chargingEvent = chargingEventMapper.toEntity(chargingEventDTO);
-        return Optional.of(repository.save(chargingEvent));
+//        ChargingEvent chargingEvent = chargingEventMapper.toEntity(chargingEventDTO);
+//        return Optional.of(repository.save(chargingEvent));
+        return null;
     }
 
-    private List<ChargingEventDTO> convertEntityToDTO(List<ChargingEvent> events){
-        List<ChargingEventDTO> dtos = new ArrayList<>();
-        for(ChargingEvent chargingEvent: events){
-            dtos.add(chargingEventMapper.toDTO(chargingEvent));
+    private ChargingEventDTO convertToDTO(ChargingEvent event) {
+        try {
+            ChargingEventDTO dto = modelMapper.map(event, ChargingEventDTO.class);
+            StationDTO stationDTO = modelMapper.map(event.getStation(), StationDTO.class);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            dto.setStartDate(dateFormat.parse(dateFormat.format(event.getStartDate())));
+            dto.setEndDate(dateFormat.parse(dateFormat.format(event.getEndDate())));
+            dto.setTransactionDate(dateFormat.parse(dateFormat.format(event.getTransactionDate())));
+            dto.setStation(stationDTO);
+            return dto;
+        } catch (ParseException exception){
+            exception.printStackTrace();
         }
-        return dtos;
+        return null;
     }
+
 
 }

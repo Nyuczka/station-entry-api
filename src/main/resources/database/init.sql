@@ -64,7 +64,6 @@ CREATE TABLE charging_event
     port             integer references ports_and_plugs (port_number)
 );
 
-
 #---------------------  INDEXES  ---------------------#
 # TO-DO: add index for location
 # CREATE INDEX location_idx on location(port, station_name);
