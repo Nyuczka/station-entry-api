@@ -32,7 +32,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     private final String AUTH_SECRET = "TjWnZr4u7x!z%C*F-JaNdRgUkXp2s5v8";
 
-    private final Long INTERVAL = 1800000L;
+    private final Long INTERVAL = 600000L;
 
     private final AuthenticationManager authenticationManager;
 

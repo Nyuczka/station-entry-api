@@ -4,8 +4,6 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import net.minidev.json.JSONObject;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,7 +28,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
         } else {
             String authorizationHeader = request.getHeader("Authorization");
             try {
-                if (!authorizationHeader.isEmpty() && authorizationHeader.startsWith("Bearer ")) {
+                if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
 
                     String token = authorizationHeader.substring("Bearer ".length());
                     Algorithm algorithm = Algorithm.HMAC256(AUTH_SECRET);
@@ -45,16 +43,10 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 
                     UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, null, authorities);
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                    filterChain.doFilter(request, response);
-
                 }
+                filterChain.doFilter(request, response);
             } catch (Exception exception) {
-                response.setHeader("error", exception.getMessage());
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.setContentType("application/json");
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("error_message", exception.getMessage());
-                new ObjectMapper().writeValue(response.getOutputStream(), jsonObject);
+                exception.printStackTrace();
             }
 
         }

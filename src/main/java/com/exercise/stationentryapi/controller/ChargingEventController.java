@@ -23,11 +23,6 @@ public class ChargingEventController {
         this.chargingEventsService = chargingEventsService;
     }
 
-    @GetMapping(value = "/all")
-    public ResponseEntity<?> getAllEvents() {
-        ResponseWrapper wrapper = new ResponseWrapper(chargingEventsService.getChargingEvents());
-        return new ResponseEntity<>(wrapper, HttpStatus.OK);
-    }
 
     @PostMapping(value="/add-entry", consumes = "application/json;charset=UTF-8")
     public ResponseEntity<?> addEntry(@RequestBody ChargingEventDTO chargingEventDTO){
